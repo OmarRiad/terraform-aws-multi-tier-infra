@@ -99,13 +99,13 @@ module "proxy_ec2" {
   instance_type       = var.proxy_instance_type
   subnet_ids          = module.vpc.public_subnet_ids
   security_group_ids  = [module.sg.sg_ids["proxy"]]
-  associate_public_ip = true
   key_name            = "jenkins"
-  user_data = templatefile("${path.module}/scripts/proxy-userdata.sh.tpl", {
-    internal_alb_dns = module.private_alb.alb_dns
-  })
-
-  tags = { Role = "proxy" }
+  associate_public_ip = true
+  internal_alb_dns    = module.private_alb.alb_dns
+  role                = "proxy"
+  tags = {
+    Role = "proxy"
+  }
 }
 
 module "backend_ec2" {
@@ -115,10 +115,16 @@ module "backend_ec2" {
   instance_type       = var.backend_instance_type
   subnet_ids          = module.vpc.private_subnet_ids
   security_group_ids  = [module.sg.sg_ids["backend"]]
-  user_data           = file("${path.module}/scripts/backend-userdata.sh")
   key_name            = "jenkins"
   associate_public_ip = false
-  tags = { Role = "backend" }
+  bastion_hosts       = module.proxy_ec2.public_ips
+
+  role                = "backend"
+  
+  tags = {
+    Role = "backend"
+  }
+
 }
 
 module "public_alb" {

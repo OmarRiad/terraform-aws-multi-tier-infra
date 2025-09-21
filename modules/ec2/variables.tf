@@ -9,6 +9,10 @@ variable "ami_id" {
   type        = string
 }
 
+variable "key_name" {
+  type = string
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
@@ -41,7 +45,21 @@ variable "associate_public_ip" {
   type        = bool
   default     = false
 }
-variable "key_name" {
-  description = "Key pair name to use for EC2"
+
+
+variable "role" {
+  description = "Role of the instance (proxy or backend)"
   type        = string
+}
+
+
+variable "internal_alb_dns" {
+  description = "Private ALB DNS (only needed for proxy role)"
+  type        = string
+  default     = ""
+}
+variable "bastion_hosts" {
+  description = "Public IPs of bastion (proxy) instances to use for SSH into private instances"
+  type        = list(string)
+  default     = []
 }
